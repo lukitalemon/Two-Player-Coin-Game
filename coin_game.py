@@ -2,19 +2,23 @@ import random
 def main():
     display_banner()
     play_game()
+
 def play_game():
     player_num = 1
     game_finished = False
     game_string = create_game_string()
-    while game_finished == False:
+    while not game_finished:
         display_game_string(game_string)
         print("PLAYER NUMBER: " + str(player_num))
         position_num = get_position_number_from_user()
+        if position_num == "cheat":
+            congratulate_player(player_num)
+            return  
         move_num = get_number_places_to_move()
         game_string = move_dollar_to_the_left(game_string, position_num, move_num)
         game_finished = check_game_finished(game_string)
         if game_finished:
-             congratulate_player(player_num)
+            congratulate_player(player_num)
         else:
             player_num = get_next_player_num(player_num)
     
@@ -25,8 +29,20 @@ def display_banner():
     return display_banner
 
 def get_position_number_from_user():
-    CoinPostion = int(input("Enter position number of coin: "))
-    return CoinPostion
+    while True:
+        user_input = input("Enter position number of coin (1-9): ")
+        if user_input.lower() == "cheat":
+            return "cheat"
+        try:
+            coin_position = int(user_input)
+            if 1 <= coin_position <= 9:
+                return coin_position
+            else:
+                print("____________________________________________")
+                print("Invalid input: Please enter a number between 1 and 9.")
+        except ValueError:
+            print("____________________________________________")
+            print("Invalid input: Please enter a valid integer.")
 
 def get_number_places_to_move():
     CoinMoves = int(input("Enter number of places to move coin: "))
@@ -60,9 +76,15 @@ def get_next_player_num(player_number):
         return 1
 
 def move_dollar_to_the_left(game_string, position_number, to_move):
-    NewPosition = position_number - to_move
-    game_string = game_string[:NewPosition-1] + '$' + game_string[NewPosition-1:position_number-1] + game_string[position_number:]
-    return game_string
+    new_position = position_number - to_move
+    if new_position < 1 or new_position > len(game_string):
+        print("____________________________")
+        print("Invalid move: Out of bounds!")
+        print("____________________________")
+        return game_string
+    else:
+        game_string = game_string[:new_position - 1] + '$' + game_string[new_position - 1:position_number - 1] + game_string[position_number:]
+        return game_string
 
 def check_game_finished(game_string):
     if game_string[0:4] =="$$$$":
